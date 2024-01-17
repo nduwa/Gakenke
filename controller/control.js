@@ -200,6 +200,7 @@ exports.postUserAdmin = async (req, res, next) =>{
     let kp_instit  = data+dot+data2+dot+data3+dot+data4+dot+data6;
     let kp_rol  = data0+dot+data21+dot+data3+dot+data4+dot+data7;
     let kp_cat  = data0+dot+data21+dot+data3+dot+data4+dot+data7;
+    let kp_bra  = data0+dot+data2+dot+data3+dot+data4+dot+data7;
 
     if(action == 'save_users_administration'){
         const { _kf_institution,userID,full_name,email,phone,branch_type,branch,user_role,username } = req.body;
@@ -284,12 +285,37 @@ exports.postUserAdmin = async (req, res, next) =>{
         const cat ={__kp_category:kp_cat,Category_Name:category_name,createAt:dateFormat,status:0}
         Category.create(cat)
         .then(cat_data =>{
-            req.flash('error', 'Record removed successfully');
+            req.flash('error', 'Record created successfully');
             res.redirect('/ADM013');
         })
     }
+    if(action == 'save_branch_info'){
+        const {branch_name} = req.body;
+        const branches ={__kp_branch:kp_bra,_kf_institution:req.session.user._kf_institution,
+            branch_Name:branch_name,reg_date:dateFormat,status:0}
+        Branch.create(branches)
+        .then(bra_data =>{
+            req.flash('error', 'Record created successfully');
+            res.redirect('/PH0012');
+        }).catch(err =>{console.log(err);})
+    }
     if(action == 'save_role_info'){
-
+        const {role_name} = req.body;
+        const rolese ={__kp_role:kp_rol,_kf_institution:req.session.user._kf_institution,
+            Role_Name:role_name,reg_date:dateFormat,status:0}
+        Role.create(rolese)
+        .then(ro_data =>{
+            req.flash('error', 'Record created successfully');
+            if(req.session.institute_category.Category_Name =='ADMNISTRATION'){
+                return res.redirect('/ADM012');
+            }
+            if(req.session.institute_category.Category_Name =='HEALTHCARE'){
+                return res.redirect('/HL012');
+            }
+            if(req.session.institute_category.Category_Name =='PHARMACIE'){
+                return res.redirect('/PH0012');
+            }
+        }).catch(err =>{console.log(err);})
     }
 }
 /*=======  get, change user info for Administration ============*/
@@ -359,5 +385,28 @@ exports.getPharmaHome = (req, res, next) =>{
 };
 /*=======  get data setting info from Pharmacie ============*/
 exports.getPharmaSetting = (req, res, next) =>{
+    let message = req.flash('error');
+    if(message.length > 0) { message = message[0]; }
+    else { message = null; }
+    Role.findAll({where:{_kf_institution:req.session.user._kf_institution}})
+    .then(roles =>{
+        Branch.findAll({where:{_kf_institution:req.session.user._kf_institution}})
+        .then(branchdata =>{
+            res.render('Pharmacie/setting',{
+                pageTitle: 'PACE | DG-HEALTH',
+                path: '/PH0012',
+                isAuthenticated:req.session.isLoggedIn,
+                user_session: req.session.user,
+                institute_session: req.session.institutes,
+                institute_category_session: req.session.institute_category,
+                branch_type_session: req.session.branch_type,
+                role_session: req.session.role,
+                branch_session: req.session.branch,
+                errorMessage: message,
+                roledatas:roles,
+                branchdatas: branchdata
+            })
+        })
+    })
     
 }

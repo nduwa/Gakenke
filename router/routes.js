@@ -15,6 +15,7 @@ router.post('/ADuserPOST', isOn, contr.postUserAdmin);
 //============= HEALTHCARE ==============
 //============= PHARMACIE  ==============
 router.get('/PH0011', isOn, contr.getPharmaHome);
+router.get('/PH0012', isOn, contr.getPharmaSetting);
 //router.get()
 
 module.exports = router;
