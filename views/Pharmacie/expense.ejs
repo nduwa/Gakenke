@@ -20,75 +20,13 @@
       
       <!-- ================== Category =========================== -->
       <div class="row" >
-        <% if(branch_type_session.type_Name != 'UNIQUE'){%>
-        <div class="col-md-6 col-sm-6 col-lg-6 ">
+        <div class="col-md-12 col-sm-12 col-lg-12">
           <div class="x_panel">
             <div class="x_title">
-              <h2>LIST OF <%= institute_session.Institute_name %> BRANCH</h2>
-              <div class="pull-right">
-                  <button type="button" id="butts" class="btn btn-secondary btn-sm" data-toggle="modal" data-target=".bs-example_category">
-                      <i class="fa fa-user"></i> New branch
-                  </button>
-              </div>
-              <div class="clearfix"></div>
-            </div>
-            <div class="x_content">
-
-              <table class="table table-striped">
-                <thead>
-                  <tr>
-                    <th>#</th>
-                    <th>DATE</th>
-                    <th>BRANCH NAME</th>
-                    <th>ACTION</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <% 
-                      
-                      let n = 1;
-                      for(let row of branchdatas) {
-                      if(row.status == '0') { 
-                          status = "OFF"; 
-                          user_status_view = "fa-toggle-off "; 
-                          st = "color: red;";
-                          user_ = 1; 
-                      }else { 
-                          status = "ON"; 
-                          user_status_view = "fa-toggle-on";
-                          st = "color: green;";
-                          user_ = 0; 
-                      }
-                  %>
-                  <tr>
-                      <td><%= n  %></td>
-                      <td><%= row.reg_date %></td>
-                      <td><%= row.branch_Name %></td>
-                      <td>
-                          <a href="../router/action_page.php?user_status&status=<%= user_ %>&&user_ID=<%= row.id %>" class="btn-sm btn btn-info">
-                              <i class="fa fa-edit"> </i> Edit 
-                          </a>
-                          
-                          <a href="user_access?id=<%= row.id %>" class="btn-sm btn btn-danger">
-                              <i class="fa fa-trash"></i> Delete
-                          </a>
-                      </td>
-                  </tr>
-                  <% n++ } %>
-                </tbody>
-              </table>
-
-            </div>
-          </div>
-        </div>
-        <% } %>
-        <div class="col-md-6 col-sm-6 col-lg-6 ">
-          <div class="x_panel">
-            <div class="x_title">
-              <h2>LIST OF <%= institute_session.Institute_name %> ROLES</h2>
+              <h2>LIST OF <%= institute_session.Institute_name %> EXPENSES</h2>
               <div class="pull-right">
                   <button type="button" id="butts" class="btn btn-secondary btn-sm" data-toggle="modal" data-target=".bs-example_role">
-                      <i class="fa fa-user"></i> New role
+                      <i class="fa fa-user"></i> New expense
                   </button>
               </div>
               <div class="clearfix"></div>
@@ -100,14 +38,16 @@
                   <tr>
                     <th>#</th>
                     <th>DATE</th>
-                    <th>ROLE NAME</th>
+                    <th>EXPENSE AMOUNT</th>
+                    <th>DESCRIPTION </th>
                     <th>ACTION</th>
                   </tr>
                 </thead>
                 <tbody>
                   <% 
+                    if(expense_data.length > 0){
                       let nn = 1;
-                      for(let row of roledatas) {
+                      for(let row of expense_data) {
                       if(row.status == '0') { 
                           status = "OFF"; 
                           user_status_view = "fa-toggle-off "; 
@@ -122,8 +62,9 @@
                   %>
                   <tr>
                       <td><%= nn %></td>
-                      <td><%= row.reg_date %></td>
-                      <td><%= row.Role_Name %></td>
+                      <td><%= row.expense_date %></td>
+                      <td><%= row.Amount %></td>
+                      <td><%= row.expense_desc %></td>
                       <td>
                           <a href="../router/action_page.php?user_status&status=<%= user_ %>&&user_ID=<%= row.id %>" class="btn-sm btn btn-info">
                               <i class="fa fa-edit"> </i> Edit 
@@ -134,7 +75,13 @@
                           </a>
                       </td>
                   </tr>
-                  <% nn++ }  %>
+                  <% nn++ } 
+                  } else{
+                   %>
+                   <tr>
+                    <td colspan="5"> No data</td>
+                   </tr>
+                    <% } %>
                 </tbody>
               </table>
 
@@ -152,34 +99,7 @@
     </div>
   </div>
   <!-- Small modal -->
-   
-  <!-- =================== Category ============================ -->
-  <div class="modal fade bs-example_category" tabindex="-1" role="dialog" aria-hidden="true">
-      <div class="modal-dialog modal-md">
-          <div class="modal-content">
-              <div class="modal-header" id="butts">
-                  <h4 class="modal-title " id="myModalLabel2">New System Branch</h4>
-                  <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span>
-                  </button>
-              </div>
-              <div class="modal-body">
-                <form action="/ADuserPOST" method="post" id="form">
-                  <div class="mb-3">
-                    <label for="systemRole" class="form-label">Branch Name</label>
-                    <input type="text" id="branch_name" name="branch_name" class="form-control" placeholder="Branch Name" required="required" autofocus="autofocus">
-                  </div>
-                  
-                  <div class="text-center">
-                    <input type="hidden" name="action" id="action" value="save_branch_info">
-                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                    <input type="submit" class="btn btn-dark form-control"  value="save" >
-                  </div>
-                  <hr>
-                </form>
-              </div>
-          </div>
-      </div>
-  </div>
+  
   <!-- =================== Role ============================ -->
   <div class="modal fade bs-example_role" tabindex="-1" role="dialog" aria-hidden="true">
       <div class="modal-dialog modal-md">

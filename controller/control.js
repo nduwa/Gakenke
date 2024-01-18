@@ -10,7 +10,10 @@ const Type = require('../model/branch_type');
 const Branch = require('../model/branch');
 const Role = require('../model/role');
 const Users = require('../model/user');
-
+const Product = require('../model/medical_product');
+const Medi_category = require('../model/medi_category');
+const Income = require('../model/income');
+const Expense = require('../model/expenses');
 /*=======  Get page for login form ============*/
 exports.getUser = (req, res, next) =>{
     let message = req.flash('error');
@@ -138,13 +141,13 @@ exports.getAdminUser = (req, res, next) =>{
     let user = req.session.user._kf_institution;
     if(req.session.institutes.Institute_name == 'PACE'){
         var sql =`SELECT *,dg_users.id as user_ID,dg_users.status as user_status FROM dg_users
-        INNER JOIN dg_roles ON dg_users._kf_role = dg_roles.__kp_role
-        INNER JOIN dg_institutions ON dg_users._kf_institution = dg_institutions.__kp_institution
+        INNER JOIN dg_role ON dg_users._kf_role = dg_role.__kp_role
+        INNER JOIN dg_institution ON dg_users._kf_institution = dg_institution.__kp_institution
         ORDER BY dg_users.id DESC`
     }else{ 
         var sql =`SELECT *,dg_users.id as user_ID,dg_users.status as user_status FROM dg_users
-        INNER JOIN dg_roles ON dg_users._kf_role = dg_roles.__kp_role
-        INNER JOIN dg_institutions ON dg_users._kf_institution = dg_institutions.__kp_institution
+        INNER JOIN dg_role ON dg_users._kf_role = dg_role.__kp_role
+        INNER JOIN dg_institution ON dg_users._kf_institution = dg_institution.__kp_institution
         WHERE dg_users._kf_institution = '${user}' ORDER BY dg_users.id DESC`
     }
     sequelize.query(sql,{ type: Sequelize.QueryTypes.SELECT })
@@ -328,10 +331,10 @@ exports.getAdminSetting = (req, res, next)=>{
     let message = req.flash('error');
     if(message.length > 0) { message = message[0]; }
     else { message = null; }
-    var sql = `SELECT *,dg_institutions.id as inst_ID,dg_institutions.status as inst_status 
-    FROM dg_institutions INNER JOIN dg_categories ON dg_institutions._kf_category = dg_categories.__kp_category
-    INNER JOIN dg_branch_types ON dg_institutions._kf_branch_type = dg_branch_types.__kp_branch_type
-    ORDER BY dg_institutions.id DESC`;
+    var sql = `SELECT *,dg_institution.id as inst_ID,dg_institution.status as inst_status 
+    FROM dg_institution INNER JOIN dg_category ON dg_institution._kf_category = dg_category.__kp_category
+    INNER JOIN dg_branch_type ON dg_institution._kf_branch_type = dg_branch_type.__kp_branch_type
+    ORDER BY dg_institution.id DESC`;
     sequelize.query(sql,{ type: Sequelize.QueryTypes.SELECT })
     .then(results =>{
         Role.findAll({where:{_kf_institution:req.session.user._kf_institution}})
@@ -409,4 +412,113 @@ exports.getPharmaSetting = (req, res, next) =>{
         })
     })
     
+}
+/*=======  get data medecal category info from Pharmacie ============*/
+exports.getPharmaMediCategory = (req, res, next) =>{
+    let message = req.flash('error');
+    if(message.length > 0) { message = message[0]; }
+    else { message = null; }
+    Medi_category.findAll()
+    .then(medi_cate =>{
+        res.render('Pharmacie/medical_category',{
+            pageTitle: 'PACE | DG-HEALTH',
+            path: '/PH0014',
+            isAuthenticated:req.session.isLoggedIn,
+            user_session: req.session.user,
+            institute_session: req.session.institutes,
+            institute_category_session: req.session.institute_category,
+            branch_type_session: req.session.branch_type,
+            role_session: req.session.role,
+            branch_session: req.session.branch,
+            errorMessage: message,
+            medi_category: medi_cate
+        })
+    })
+}
+/*=======  get data medical product info from Pharmacie ============*/
+exports.getPharmaMedecine = (req, res, next) =>{
+    let message = req.flash('error');
+    if(message.length > 0) { message = message[0]; }
+    else { message = null; }
+    var sql = `SELECT * FROM dg_medical_product INNER JOIN dg_medical_category
+     ON dg_medical_product._kf_category = dg_medical_category.__kp_mede_category`;
+    sequelize.query(sql,{ type: Sequelize.QueryTypes.SELECT })
+    .then(medecine =>{
+        res.render('Pharmacie/medical_product',{
+            pageTitle: 'PACE | DG-HEALTH',
+            path: '/PH0013',
+            isAuthenticated:req.session.isLoggedIn,
+            user_session: req.session.user,
+            institute_session: req.session.institutes,
+            institute_category_session: req.session.institute_category,
+            branch_type_session: req.session.branch_type,
+            role_session: req.session.role,
+            branch_session: req.session.branch,
+            errorMessage: message,
+            medical_data: medecine
+        })
+    }).catch(err =>{console.log(err);})
+    
+}
+/*=======  get data income info from Pharmacie ============*/
+exports.getSystemIncome = (req, res, next) =>{
+    let message = req.flash('error');
+    if(message.length > 0) { message = message[0]; }
+    else { message = null; }
+    Income.findAll()
+    .then(income =>{
+        res.render('Pharmacie/income',{
+            pageTitle: 'PACE | DG-HEALTH',
+            path: '/PH0015',
+            isAuthenticated:req.session.isLoggedIn,
+            user_session: req.session.user,
+            institute_session: req.session.institutes,
+            institute_category_session: req.session.institute_category,
+            branch_type_session: req.session.branch_type,
+            role_session: req.session.role,
+            branch_session: req.session.branch,
+            errorMessage: message,
+            income_data: income
+        })
+    })
+}
+/*=======  get data expense info from Pharmacie ============*/
+exports.getSystemExpense = (req, res, next) =>{
+    let message = req.flash('error');
+    if(message.length > 0) { message = message[0]; }
+    else { message = null; }
+    Expense.findAll()
+    .then(expense =>{
+        res.render('Pharmacie/expense',{
+            pageTitle: 'PACE | DG-HEALTH',
+            path: '/PH0016',
+            isAuthenticated:req.session.isLoggedIn,
+            user_session: req.session.user,
+            institute_session: req.session.institutes,
+            institute_category_session: req.session.institute_category,
+            branch_type_session: req.session.branch_type,
+            role_session: req.session.role,
+            branch_session: req.session.branch,
+            errorMessage: message,
+            expense_data: expense
+        })
+    })
+}
+/*=======  get data purchase medecine info from Pharmacie ============*/
+exports.getPharmaPurchase = (req, res, next) =>{
+    let message = req.flash('error');
+    if(message.length > 0) { message = message[0]; }
+    else { message = null; }
+    res.render('Pharmacie/purchase',{
+        pageTitle: 'PACE | DG-HEALTH',
+        path: '/PH0017',
+        isAuthenticated:req.session.isLoggedIn,
+        user_session: req.session.user,
+        institute_session: req.session.institutes,
+        institute_category_session: req.session.institute_category,
+        branch_type_session: req.session.branch_type,
+        role_session: req.session.role,
+        branch_session: req.session.branch,
+        errorMessage: message
+    })
 }
