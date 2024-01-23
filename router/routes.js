@@ -21,6 +21,8 @@ router.get('/PH0014', isOn, contr.getPharmaMediCategory);
 router.get('/PH0015', isOn, contr.getSystemIncome);
 router.get('/PH0016', isOn, contr.getSystemExpense);
 router.get('/PH0017', isOn, contr.getPharmaPurchase);
+
+router.post('/PharmaPOST', isOn, contr.postPharmaInfo);
 //router.get()
 
 module.exports = router;

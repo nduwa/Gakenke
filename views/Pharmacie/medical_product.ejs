@@ -67,7 +67,11 @@
                                 <a href="../router/action_page.php?user_status&status=<%= user_ %>&&user_ID=<%= row.product_ID  %>" class="btn-sm btn btn-info">
                                     <i class="fa fa-edit"> </i> Edit 
                                 </a>
-                                
+                                <form action="/PharmaPOST" method="post">
+                                  <input type="hidden" name="action" id="action" value="remove_medecine_product_info">
+                                  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                                  <input type="submit" class="btn btn-danger form-control"  value="delete" >
+                                </form>
                                 <a href="user_access?id=<%= row.product_ID  %>" class="btn-sm btn btn-danger">
                                     <i class="fa fa-trash"></i> Delete
                                 </a>
@@ -92,52 +96,36 @@
   </div>
   <!-- Small modal -->
    
-  <!-- =================== Category ============================ -->
-  <div class="modal fade bs-example_category" tabindex="-1" role="dialog" aria-hidden="true">
-      <div class="modal-dialog modal-md">
-          <div class="modal-content">
-              <div class="modal-header" id="butts">
-                  <h4 class="modal-title " id="myModalLabel2">New System Branch</h4>
-                  <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span>
-                  </button>
-              </div>
-              <div class="modal-body">
-                <form action="/ADuserPOST" method="post" id="form">
-                  <div class="mb-3">
-                    <label for="systemRole" class="form-label">Branch Name</label>
-                    <input type="text" id="branch_name" name="branch_name" class="form-control" placeholder="Branch Name" required="required" autofocus="autofocus">
-                  </div>
-                  
-                  <div class="text-center">
-                    <input type="hidden" name="action" id="action" value="save_branch_info">
-                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                    <input type="submit" class="btn btn-dark form-control"  value="save" >
-                  </div>
-                  <hr>
-                </form>
-              </div>
-          </div>
-      </div>
-  </div>
+  
   <!-- =================== Role ============================ -->
   <div class="modal fade bs-example_role" tabindex="-1" role="dialog" aria-hidden="true">
       <div class="modal-dialog modal-md">
           <div class="modal-content">
               <div class="modal-header" id="butts">
-                  <h4 class="modal-title " id="myModalLabel2">New System Role</h4>
+                  <h4 class="modal-title " id="myModalLabel2">New System Medecine</h4>
                   <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span>
                   </button>
               </div>
               <div class="modal-body">
-                  <form action="/ADuserPOST" method="post" id="form">
+                  <form action="/PharmaPOST" method="post" id="form">
                   
                       <div class="mb-3">
-                      <label for="systemRole" class="form-label">Role Name</label>
-                      <input type="text" id="role_name" name="role_name" class="form-control" placeholder="Role Name" required="required" autofocus="autofocus">
+                        <label for="systemRole" class="form-label">Medecine Name</label>
+                        <input type="text" id="medecine_name" name="medecine_name" class="form-control" placeholder="Medecine Name" required="required" autofocus="autofocus">
                       </div>
                       
+                        <div class="mb-3">
+                          <label for="systemRole" class="form-label">Medecine Category</label>
+                          <select id="medecine_category" name="medecine_category" class="form-control">
+                            <option selected="selected" disabled="disabled">CHOOSE CATEGORY</option>
+                            <% for(let row of category_data){ %>
+                              <option value="<%= row.__kp_mede_category %>"><%= row.category_name %></option>
+                            <% } %>
+                          </select>
+                        </div>
+                      
                       <div class="text-center">
-                        <input type="hidden" name="action" id="action" value="save_role_info">
+                        <input type="hidden" name="action" id="action" value="save_medecine_product_info">
                         <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                         <input type="submit" class="btn btn-dark form-control"  value="save" >
                       </div>

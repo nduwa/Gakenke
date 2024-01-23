@@ -58,31 +58,34 @@ exports.getUserData = (req, res, next)=>{
                                     Type.findOne({where:{__kp_branch_type:req.session.institutes._kf_branch_type}})
                                     .then(branch_type =>{
                                         req.session.branch_type = branch_type;
-
                                         if(req.session.branch_type.type_Name != 'UNIQUE' && req.session.role.Role_Name != 'ADMIN'){
-                                            const col = {_kf_institution:req.session.user._kf_institution, __kp_branch:req.session.user.__kp_branch};
+                                            const col = {_kf_institution:req.session.user._kf_institution, __kp_branch:req.session.user._kf_branch};
                                             Branch.findAll({where:col})
                                             .then(branch =>{
                                                 req.session.branch = branch;
-                                            }).catch(err =>{console.log(err);})
-                                        }else{
-                                            Users.update({is_type:'online',last_activity:format},{where:{__kp_user:req.session.user.__kp_user}})
-                                            .then(logged =>{
-                                                //console.log('You are logged In');
-                                                if(req.session.institute_category.Category_Name =='ADMNISTRATION'){
-                                                    console.log('You are logged In as Administration');
-                                                    return res.redirect('/ADM011');
-                                                }
-                                                if(req.session.institute_category.Category_Name =='HEALTHCARE'){
-                                                    console.log('You are logged In as Health');
-                                                    return res.redirect('/HL011');
-                                                }
-                                                if(req.session.institute_category.Category_Name =='PHARMACIE'){
-                                                    console.log('You are logged In as Pharmacie');
-                                                    return res.redirect('/PH0011');
-                                                }
+                                                let branches = req.session.branch.branch_Name;
+                                                console.log(branches);
                                             }).catch(err =>{console.log(err);})
                                         }
+                                        
+                                        Users.update({is_type:'online',last_activity:format},{where:{__kp_user:req.session.user.__kp_user}})
+                                        .then(logged =>{
+                                            //console.log('You are logged In');
+                                            if(req.session.institute_category.Category_Name =='ADMNISTRATION'){
+                                                console.log('You are logged In as Administration');
+                                                return res.redirect('/ADM011');
+                                            }
+                                            if(req.session.institute_category.Category_Name =='HEALTHCARE'){
+                                                console.log('You are logged In as Health');
+                                                return res.redirect('/HL011');
+                                            }
+                                            if(req.session.institute_category.Category_Name =='PHARMACIE'){
+                                                
+                                                
+                                                console.log('You are logged In as Pharmacie');
+                                                return res.redirect('/PH0011');
+                                            }
+                                        }).catch(err =>{console.log(err);})
                                     }).catch(err =>{console.log(err);})
                                 }).catch(err =>{console.log(err);})
                             }).catch(err =>{console.log(err);})
@@ -444,18 +447,22 @@ exports.getPharmaMedecine = (req, res, next) =>{
      ON dg_medical_product._kf_category = dg_medical_category.__kp_mede_category`;
     sequelize.query(sql,{ type: Sequelize.QueryTypes.SELECT })
     .then(medecine =>{
-        res.render('Pharmacie/medical_product',{
-            pageTitle: 'PACE | DG-HEALTH',
-            path: '/PH0013',
-            isAuthenticated:req.session.isLoggedIn,
-            user_session: req.session.user,
-            institute_session: req.session.institutes,
-            institute_category_session: req.session.institute_category,
-            branch_type_session: req.session.branch_type,
-            role_session: req.session.role,
-            branch_session: req.session.branch,
-            errorMessage: message,
-            medical_data: medecine
+        Medi_category.findAll()
+        .then(category =>{
+            res.render('Pharmacie/medical_product',{
+                pageTitle: 'PACE | DG-HEALTH',
+                path: '/PH0013',
+                isAuthenticated:req.session.isLoggedIn,
+                user_session: req.session.user,
+                institute_session: req.session.institutes,
+                institute_category_session: req.session.institute_category,
+                branch_type_session: req.session.branch_type,
+                role_session: req.session.role,
+                branch_session: req.session.branch,
+                errorMessage: message,
+                medical_data: medecine,
+                category_data: category
+            })
         })
     }).catch(err =>{console.log(err);})
     
@@ -521,4 +528,48 @@ exports.getPharmaPurchase = (req, res, next) =>{
         branch_session: req.session.branch,
         errorMessage: message
     })
+}
+/*=======  post data pharmacie info from Pharmacie ============*/
+exports.postPharmaInfo = (req, res, next) =>{
+    const {action} = req.body;
+    // program to generate random strings
+    const characters ='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    function generateString(length) {
+        let result = '';
+        const charactersLength = characters.length;
+        for ( let i = 0; i < length; i++ ) {
+            result += characters.charAt(Math.floor(Math.random() * charactersLength));
+        }
+        return result;
+    }
+    let dot = '-';
+    let data = generateString(8);
+    let data0 = generateString(8);
+    let data1 = generateString(8);
+    let data2 = generateString(4);
+    let data21 = generateString(4);
+    let data3 = generateString(4);
+    let data4 = generateString(4);
+    let data5 = generateString(12);
+    let data6 = generateString(12);
+    let data7 = generateString(12);
+    let kp_prod  = data1+dot+data2+dot+data3+dot+data4+dot+data5;
+    let kp_instit  = data+dot+data2+dot+data3+dot+data4+dot+data6;
+    let kp_rol  = data0+dot+data21+dot+data3+dot+data4+dot+data7;
+    let kp_cat  = data0+dot+data21+dot+data3+dot+data4+dot+data7;
+    let kp_bra  = data0+dot+data2+dot+data3+dot+data4+dot+data7;
+
+    if(action == 'save_medecine_product_info'){
+        const {medecine_name,medecine_category} = req.body;
+        const product = {__kp_product:kp_prod,_kf_category:medecine_category,product_name:medecine_name,
+            register_date:dateFormat,product_status:1};
+        Product.create(product)
+        .then(mede_product =>{
+            req.flash('error', 'Record created successfully');
+            res.redirect('/PH0013');
+        }).catch(err =>{console.log(err);})
+    }
+    if(action == 'remove_medecine_product_info'){
+        console.log('wellll');
+    }
 }
