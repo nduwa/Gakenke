@@ -39,10 +39,49 @@
                         <tr>
                             <th>#</th>
                             <th>MEDECINE NAME</th>
-                            <th>MEDECINE CATEGORY</th>
+                            <th>BATCH</th>
+                            <th>PURCHASE PRICE</th>
+                            <th>SELLING PRICE</th>
+                            <th>QUANTITY</th>
+                            <th>EXPIRED DATE</th>
                             <th>ACTION</th>
                         </tr>
                         </thead>
+                        <tbody>
+                          <% 
+                            if(purchase_data.length > 0){
+                              let nn = 1;
+                              for(let row of purchase_data) {
+                              if(row.status == '0') { 
+                                  status = "OFF"; 
+                                  user_status_view = "fa-toggle-off "; 
+                                  st = "color: red;";
+                                  user_ = 1; 
+                              }else { 
+                                  status = "ON"; 
+                                  user_status_view = "fa-toggle-on";
+                                  st = "color: green;";
+                                  user_ = 0; 
+                              }
+                          %>
+                          <tr>
+                            <td><%= nn %></td>
+                            <td><%= row.product_name %></td>
+                            <td><%= row.batch %></td>
+                            <td><%= row.purchase_price %></td>
+                            <td><%= row.selling_price %></td>
+                            <td><%= row.quantity %></td>
+                            <td><%= row.expired_date %></td>
+                            <td></td>
+                          </tr>
+                          <% nn++ } 
+                          } else{
+                          %>
+                   <tr>
+                    <td colspan="5"> No data</td>
+                   </tr>
+                    <% } %>
+                        </tbody>
                         
                     </table>
                 </div>
@@ -61,33 +100,7 @@
   </div>
   <!-- Small modal -->
    
-  <!-- =================== Category ============================ -->
-  <div class="modal fade bs-example_category" tabindex="-1" role="dialog" aria-hidden="true">
-      <div class="modal-dialog modal-md">
-          <div class="modal-content">
-              <div class="modal-header" id="butts">
-                  <h4 class="modal-title " id="myModalLabel2">New System Branch</h4>
-                  <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span>
-                  </button>
-              </div>
-              <div class="modal-body">
-                <form action="/ADuserPOST" method="post" id="form">
-                  <div class="mb-3">
-                    <label for="systemRole" class="form-label">Branch Name</label>
-                    <input type="text" id="branch_name" name="branch_name" class="form-control" placeholder="Branch Name" required="required" autofocus="autofocus">
-                  </div>
-                  
-                  <div class="text-center">
-                    <input type="hidden" name="action" id="action" value="save_branch_info">
-                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                    <input type="submit" class="btn btn-dark form-control"  value="save" >
-                  </div>
-                  <hr>
-                </form>
-              </div>
-          </div>
-      </div>
-  </div>
+  
   <!-- =================== Role ============================ -->
   <div class="modal fade bs-example_role" tabindex="-1" role="dialog" aria-hidden="true">
       <div class="modal-dialog modal-md">
@@ -98,20 +111,43 @@
                   </button>
               </div>
               <div class="modal-body">
-                  <form action="/ADuserPOST" method="post" id="form">
-                  
-                      <div class="mb-3">
-                      <label for="systemRole" class="form-label">Role Name</label>
-                      <input type="text" id="role_name" name="role_name" class="form-control" placeholder="Role Name" required="required" autofocus="autofocus">
-                      </div>
-                      
-                      <div class="text-center">
-                        <input type="hidden" name="action" id="action" value="save_role_info">
-                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                        <input type="submit" class="btn btn-dark form-control"  value="save" >
-                      </div>
-                      <hr>
-                  </form>
+                <form action="/PharmaPOST" method="post" id="form">
+                  <div class="mb-3">
+                    <label for="systemRole" class="form-label">Medecine Name</label>
+                    <select id="medecine_name" name="medecine_name" class="form-control">
+                      <option selected="selected" disabled="disabled">CHOOSE CATEGORY</option>
+                      <% for(let row of product_data){ %>
+                        <option value="<%= row.__kp_product %>"><%= row.product_name %></option>
+                      <% } %>
+                    </select>
+                  </div>
+                  <div class="mb-3">
+                    <label for="systemRole" class="form-label">Batch Number</label>
+                    <input type="text" id="batch" name="batch" class="form-control" placeholder="Batch" required="required" autofocus="autofocus">
+                  </div>
+                  <div class="mb-3">
+                    <label for="systemRole" class="form-label">Purchase Price</label>
+                    <input type="text" id="purchase_price" name="purchase_price" class="form-control" placeholder="Purchase Price" required="required" autofocus="autofocus">
+                  </div>
+                  <div class="mb-3">
+                    <label for="systemRole" class="form-label">Selling Price</label>
+                    <input type="text" id="selling_price" name="selling_price" class="form-control" placeholder="Selling Price" required="required" autofocus="autofocus">
+                  </div>
+                  <div class="mb-3">
+                    <label for="systemRole" class="form-label">Quantity</label>
+                    <input type="text" id="quantity" name="quantity" class="form-control" placeholder="Quantity" required="required" autofocus="autofocus">
+                  </div>
+                  <div class="mb-3">
+                    <label for="systemRole" class="form-label">Expiration Date</label>
+                    <input type="date" id="expired_date" name="expired_date" class="form-control" required="required" autofocus="autofocus">
+                  </div>
+                  <div class="text-center">
+                    <input type="hidden" name="action" id="action" value="save_purchased_info">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                    <input type="submit" class="btn btn-dark form-control"  value="save" >
+                  </div>
+                  <hr>
+                </form>
               </div>
           </div>
       </div>

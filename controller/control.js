@@ -14,6 +14,9 @@ const Product = require('../model/medical_product');
 const Medi_category = require('../model/medi_category');
 const Income = require('../model/income');
 const Expense = require('../model/expenses');
+const Purchase = require('../model/purchase');
+const B_Purchase = require('../model/purchaseb');
+const Backet = require('../model/medical_backet');
 /*=======  Get page for login form ============*/
 exports.getUser = (req, res, next) =>{
     let message = req.flash('error');
@@ -40,7 +43,7 @@ exports.getUserData = (req, res, next)=>{
 	            bcrypt.compare(password, hashedPassword, (err, result) => {
 	            if (err) {
 	               console.log('bcrypt - error - ', err);
-	            } else {
+	            }else{
                     console.log('bcrypt - result - ', result);
                     if(result === true){
                         console.log('loggedIn');
@@ -58,16 +61,18 @@ exports.getUserData = (req, res, next)=>{
                                     Type.findOne({where:{__kp_branch_type:req.session.institutes._kf_branch_type}})
                                     .then(branch_type =>{
                                         req.session.branch_type = branch_type;
-                                        if(req.session.branch_type.type_Name != 'UNIQUE' && req.session.role.Role_Name != 'ADMIN'){
-                                            const col = {_kf_institution:req.session.user._kf_institution, __kp_branch:req.session.user._kf_branch};
-                                            Branch.findAll({where:col})
+                                        if(req.session.branch_type.type_Name !='UNIQUE' && req.session.role.Role_Name != 'ADMIN'){
+                                            const col = {_kf_institution:req.session.user._kf_institution,__kp_branch:req.session.user._kf_branch};
+                                            Branch.findAll({where:col},{raw:true})
                                             .then(branch =>{
                                                 req.session.branch = branch;
                                                 let branches = req.session.branch.branch_Name;
-                                                console.log(branches);
+                                                console.log(branches);  
                                             }).catch(err =>{console.log(err);})
+                                        }else{
+                                            let branches = req.session.branch_type.__kp_branch_type;
+                                            console.log(branches);
                                         }
-                                        
                                         Users.update({is_type:'online',last_activity:format},{where:{__kp_user:req.session.user.__kp_user}})
                                         .then(logged =>{
                                             //console.log('You are logged In');
@@ -80,8 +85,6 @@ exports.getUserData = (req, res, next)=>{
                                                 return res.redirect('/HL011');
                                             }
                                             if(req.session.institute_category.Category_Name =='PHARMACIE'){
-                                                
-                                                
                                                 console.log('You are logged In as Pharmacie');
                                                 return res.redirect('/PH0011');
                                             }
@@ -516,22 +519,38 @@ exports.getPharmaPurchase = (req, res, next) =>{
     let message = req.flash('error');
     if(message.length > 0) { message = message[0]; }
     else { message = null; }
-    res.render('Pharmacie/purchase',{
-        pageTitle: 'PACE | DG-HEALTH',
-        path: '/PH0017',
-        isAuthenticated:req.session.isLoggedIn,
-        user_session: req.session.user,
-        institute_session: req.session.institutes,
-        institute_category_session: req.session.institute_category,
-        branch_type_session: req.session.branch_type,
-        role_session: req.session.role,
-        branch_session: req.session.branch,
-        errorMessage: message
-    })
+    var sql = `SELECT * FROM dg_medical_purchase INNER JOIN dg_medical_product
+     ON dg_medical_purchase._kf_product = dg_medical_product.__kp_product`;
+    sequelize.query(sql,{ type: Sequelize.QueryTypes.SELECT })
+    .then(purchase =>{
+        Product.findAll()
+        .then(prod =>{
+            res.render('Pharmacie/purchase',{
+                pageTitle: 'PACE | DG-HEALTH',
+                path: '/PH0017',
+                isAuthenticated:req.session.isLoggedIn,
+                user_session: req.session.user,
+                institute_session: req.session.institutes,
+                institute_category_session: req.session.institute_category,
+                branch_type_session: req.session.branch_type,
+                role_session: req.session.role,
+                branch_session: req.session.branch,
+                errorMessage: message,
+                product_data: prod,
+                purchase_data: purchase
+            })
+        }).catch(err =>{console.log(err);})
+    }).catch(err =>{console.log(err);})
+    
 }
 /*=======  post data pharmacie info from Pharmacie ============*/
 exports.postPharmaInfo = (req, res, next) =>{
     const {action} = req.body;
+    if(req.session.branch_type.type_Name == 'UNIQUE'){
+        var kp_branch = req.session.branch_type.__kp_branch_type;
+    }else{
+        var kp_branch = req.session.branch.__kp_branch;
+    }
     // program to generate random strings
     const characters ='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     function generateString(length) {
@@ -557,7 +576,8 @@ exports.postPharmaInfo = (req, res, next) =>{
     let kp_instit  = data+dot+data2+dot+data3+dot+data4+dot+data6;
     let kp_rol  = data0+dot+data21+dot+data3+dot+data4+dot+data7;
     let kp_cat  = data0+dot+data21+dot+data3+dot+data4+dot+data7;
-    let kp_bra  = data0+dot+data2+dot+data3+dot+data4+dot+data7;
+    let kp_income  = data0+dot+data2+dot+data3+dot+data4+dot+data7;
+    
 
     if(action == 'save_medecine_product_info'){
         const {medecine_name,medecine_category} = req.body;
@@ -572,4 +592,110 @@ exports.postPharmaInfo = (req, res, next) =>{
     if(action == 'remove_medecine_product_info'){
         console.log('wellll');
     }
+    if(action == 'save_income_info'){
+        const {income_amount,income_desc} = req.body;
+        const inome = {__kp_income:kp_income,_kf_institution:req.session.institutes.__kp_institution, Amount:income_amount,
+             income_desc:income_desc,income_status:1,income_date:dateFormat,Done_By:req.session.user.__kp_user};
+        Income.create(inome)
+        .then(incomes =>{
+            req.flash('error', 'Record created successfully');
+            res.redirect('/PH0015');
+        }).catch(err =>{console.log(err);})
+    }
+    if(action == 'save_expense_info'){
+        const {expense_amount,expense_desc} = req.body;
+        const expense = {__kp_expense:kp_income,_kf_institution:req.session.institutes.__kp_institution, Amount:expense_amount,
+            expense_desc:expense_desc,expense_status:1,expense_date:dateFormat,Done_By:req.session.user.__kp_user};
+        Expense.create(expense)
+        .then(expenses =>{
+            req.flash('error', 'Record created successfully');
+            res.redirect('/PH0016');
+        }).catch(err =>{console.log(err);})
+    }
+    if(action == 'save_purchased_info'){
+        const {medecine_name,batch,purchase_price,selling_price,quantity,expired_date} = req.body;
+        const purhase = {_kf_product:medecine_name,_kf_user:req.session.user.__kp_user,_kf_institution:req.session.institutes.__kp_institution,
+            _kf_branch:kp_branch, purchase_price:purchase_price,selling_price:selling_price,medical_source:1,
+            batch:batch,quantity:quantity,purchase_date:dateFormat,expired_date:expired_date,expired_qty:'',purchase_status:1};
+        Purchase.create(purhase)
+        .then(purchases =>{
+            B_Purchase.create(purhase)
+            .then(purchasesb =>{
+                req.flash('error', 'Record created successfully');
+                res.redirect('/PH0017');
+            }).catch(err =>{console.log(err);})
+        }).catch(err =>{console.log(err);})
+    }
+    if(action == 'serve_data_basket'){
+        const {product,quantity,batch,selling_price,serve_quantity} = req.body;
+        const backet = {_kf_product:product,_kf_institution:req.session.institutes.__kp_institution, _kf_branch:kp_branch,
+           _kf_user:req.session.user.__kp_user,batch:batch,quantity:serve_quantity,price:selling_price,done_date:dateFormat,backet_status:1};
+           Backet.create(backet)
+           .then(backetes =>{
+               req.flash('error', 'Record created successfully');
+               res.redirect('/PH0018');
+           }).catch(err =>{console.log(err);})
+    }
+
+}
+/*=======  get data serve medecine info from Pharmacie ============*/
+exports.getPharmaServe = (req, res, next) =>{
+    let message = req.flash('error');
+    if(message.length > 0) { message = message[0]; }
+    else { message = null; }
+    var sql = `SELECT * FROM dg_medical_purchase INNER JOIN dg_medical_product
+     ON dg_medical_purchase._kf_product = dg_medical_product.__kp_product`;
+    sequelize.query(sql,{ type: Sequelize.QueryTypes.SELECT })
+    .then(serve =>{
+        Backet.findAndCountAll({where:{_kf_institution:req.session.institutes.__kp_institution}})
+        .then(backet_prod =>{
+            const { count,rows } = backet_prod;
+            res.render('Pharmacie/serve_medecine',{
+                pageTitle: 'PACE | DG-HEALTH',
+                path: '/PH0018',
+                isAuthenticated:req.session.isLoggedIn,
+                user_session: req.session.user,
+                institute_session: req.session.institutes,
+                institute_category_session: req.session.institute_category,
+                branch_type_session: req.session.branch_type,
+                role_session: req.session.role,
+                branch_session: req.session.branch,
+                errorMessage: message,
+                count_data: count,
+                backet_data: rows,
+                serve_data: serve
+            })
+        }).catch(err =>{console.log(err);})
+    }).catch(err =>{console.log(err);})
+    
+}
+/*=======  get data basket info from Pharmacie ============*/
+exports.getPharmaBasket = (req, res, next) =>{
+    let message = req.flash('error');
+    if(message.length > 0) { message = message[0]; }
+    else { message = null; }
+    var sql = `SELECT * FROM dg_medical_purchase INNER JOIN dg_medical_product
+     ON dg_medical_purchase._kf_product = dg_medical_product.__kp_product`;
+    sequelize.query(sql,{ type: Sequelize.QueryTypes.SELECT })
+    .then(serve =>{
+        Backet.findAndCountAll({where:{_kf_institution:req.session.institutes.__kp_institution}})
+        .then(backet_prod =>{
+            const { count,rows } = backet_prod;
+            res.render('Pharmacie/basket',{
+                pageTitle: 'PACE | DG-HEALTH',
+                path: '/PH0018',
+                isAuthenticated:req.session.isLoggedIn,
+                user_session: req.session.user,
+                institute_session: req.session.institutes,
+                institute_category_session: req.session.institute_category,
+                branch_type_session: req.session.branch_type,
+                role_session: req.session.role,
+                branch_session: req.session.branch,
+                errorMessage: message,
+                count_data: count,
+                backet_data: rows,
+                serve_data: serve
+            })
+        }).catch(err =>{console.log(err);})
+    }).catch(err =>{console.log(err);})
 }

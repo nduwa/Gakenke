@@ -1,0 +1,152 @@
+<%- include('../includes/header.ejs') %>
+<%- include('../includes/menu.ejs') %>
+  <!-- =============================================== -->
+
+
+      <!-- =============================================== -->
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="right_col" role="main">
+    <div class="">
+      <div class="page-title">
+        <div class="title_left">
+          <h3>PACE <small>Administration Settings</small></h3>
+        </div>
+      </div>
+      <% if(errorMessage){ %>
+        <div class="alert alert-success"> <%= errorMessage %> </div>
+        <% } %>
+      <div class="clearfix"></div>
+      
+      <!-- ================== Category =========================== -->
+      <div class="row" >
+       
+        <div class="col-md-12 col-sm-12 col-lg-12 ">
+          <div class="x_panel">
+            <div class="x_title">
+              <h2>LIST OF <%= institute_session.Institute_name %> MEDECINE CATEGORY</h2>
+              <div class="pull-right">
+                  <button type="button" id="butts" class="btn btn-secondary btn-sm" data-toggle="modal" data-target=".bs-example_role">
+                      <i class="fa fa-user"></i> New category
+                  </button>
+              </div>
+              <div class="clearfix"></div>
+            </div>
+            <div class="x_content">
+                <div class="table-responsive">
+                    <table id="datatable" class="table table-striped jambo_table bulk_action">
+                        <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>CATEGORY NAME</th>
+                            <th>CATEGORY DESCRIPTION</th>
+                            <th>ACTION</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <% 
+                            let nn = 1;
+                            for(let row of medi_category) {
+                            if(row.status == '0') { 
+                                status = "OFF"; 
+                                user_status_view = "fa-toggle-off "; 
+                                st = "color: red;";
+                                user_ = 1; 
+                            }else { 
+                                status = "ON"; 
+                                user_status_view = "fa-toggle-on";
+                                st = "color: green;";
+                                user_ = 0; 
+                            }
+                        %>
+                        <tr>
+                            <td><%= nn %></td>
+                            <td><%= row.category_name %></td>
+                            <td><%= row.category_desc %></td>
+                            <td>
+                                <a href="../router/action_page.php?user_status&status=<%= user_ %>&&user_ID=<%= row.product_ID  %>" class="btn-sm btn btn-info">
+                                    <i class="fa fa-edit"> </i> Edit 
+                                </a>
+                                
+                                <a href="user_access?id=<%= row.product_ID  %>" class="btn-sm btn btn-danger">
+                                    <i class="fa fa-trash"></i> Delete
+                                </a>
+                            </td>
+                        </tr>
+                        <% nn++ }  %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- =================== Role ============================ -->
+        <!--  -->
+      
+      <!-- =============================================== -->
+
+      <!-- =============================================== -->
+      
+    </div>
+  </div>
+  <!-- Small modal -->
+   
+  <!-- =================== Category ============================ -->
+  <div class="modal fade bs-example_category" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog modal-md">
+          <div class="modal-content">
+              <div class="modal-header" id="butts">
+                  <h4 class="modal-title " id="myModalLabel2">New System Branch</h4>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span>
+                  </button>
+              </div>
+              <div class="modal-body">
+                <form action="/ADuserPOST" method="post" id="form">
+                  <div class="mb-3">
+                    <label for="systemRole" class="form-label">Branch Name</label>
+                    <input type="text" id="branch_name" name="branch_name" class="form-control" placeholder="Branch Name" required="required" autofocus="autofocus">
+                  </div>
+                  
+                  <div class="text-center">
+                    <input type="hidden" name="action" id="action" value="save_branch_info">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                    <input type="submit" class="btn btn-dark form-control"  value="save" >
+                  </div>
+                  <hr>
+                </form>
+              </div>
+          </div>
+      </div>
+  </div>
+  <!-- =================== Role ============================ -->
+  <div class="modal fade bs-example_role" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog modal-md">
+          <div class="modal-content">
+              <div class="modal-header" id="butts">
+                  <h4 class="modal-title " id="myModalLabel2">New System Role</h4>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span>
+                  </button>
+              </div>
+              <div class="modal-body">
+                  <form action="/ADuserPOST" method="post" id="form">
+                  
+                      <div class="mb-3">
+                      <label for="systemRole" class="form-label">Role Name</label>
+                      <input type="text" id="role_name" name="role_name" class="form-control" placeholder="Role Name" required="required" autofocus="autofocus">
+                      </div>
+                      
+                      <div class="text-center">
+                        <input type="hidden" name="action" id="action" value="save_role_info">
+                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                        <input type="submit" class="btn btn-dark form-control"  value="save" >
+                      </div>
+                      <hr>
+                  </form>
+              </div>
+          </div>
+      </div>
+  </div>
+  <!-- /modals -->
+  
+    <%- include('../includes/footer.ejs') %>
