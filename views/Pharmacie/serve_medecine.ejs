@@ -32,11 +32,16 @@
                 }
                 %>
               <div class="pull-right">
-                  <a  href="/basket" class="btn btn-dark btn-sm" >
-                      <i class="fa fa-user"></i> Basket &nbsp;
-                      <span class="badge badge-success" style="color: aliceblue;"> <%= count %></span>
+                  <a  href="/basket"  >
+                      
                   </a>
-
+                <form action="/PharmaPOST" method="post"class="btn btn-dark btn-sm">
+                  <i class="fa fa-user"></i>  &nbsp;
+                  <input type="submit" value="Basket"class="btn btn-dark btn-sm" name="view_basket_data">
+                  <input type="hidden" name="action" id="action" >
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                  <span class="badge badge-success" style="color: aliceblue;"> <%= count %></span>
+                </form>
               </div>
               <div class="clearfix"></div>
             </div>

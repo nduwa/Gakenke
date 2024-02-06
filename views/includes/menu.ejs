@@ -30,20 +30,22 @@
                     <ul class="nav child_menu">
                       
                       <li><a href="/ADM013">Settings</a></li>
-                      
+                      <li><a href="backup_database"><i class="fa fa-database"></i> BACKUP DATABASE <span class="fa fa-chevron-down"></span></a>
+                      </li>
                     </ul>
                   </li>
+
                  
                 </ul>
                <% } if(institute_category_session.Category_Name == 'HEALTHCARE') { %> 
                 <ul class="nav side-menu">
-                  <li><a href="/PH0011"><i class="fa fa-home"></i> DASHBOARD <span class="fa fa-chevron-down"></span></a>
+                  <li><a href="/HLCA0011"><i class="fa fa-home"></i> DASHBOARD <span class="fa fa-chevron-down"></span></a>
                   </li>
                   
                   <li><a><i class="fa fa-users"></i> MANAGE USERS <span class="fa fa-chevron-down"></span></a>
                     <ul class="nav child_menu">
                       
-                      <li><a href="users">List of users</a></li>
+                      <li><a href="/ADM012">List of users</a></li>
                       
                     </ul>
                   </li>
@@ -51,9 +53,31 @@
                   <li><a><i class="fa fa-cog"></i>HEALTH SETTINGS <span class="fa fa-chevron-down"></span></a>
                     <ul class="nav child_menu">
                       
-                      <li><a href="setting">Settings</a></li>
+                      <li><a href="/PH0012">Settings</a></li>
+                      <li><a href="/HLCA0012">Insurance</a></li>
                       
                     </ul>
+                  </li>
+                  <li><a><i class="fa fa-cog"></i>MANAGEMENT(S) <span class="fa fa-chevron-down"></span></a>
+                    <ul class="nav child_menu">
+                      
+                      <li><a href="/PH0015">Incomes</a></li>
+                      <li><a href="/PH0016">Expenses</a></li>
+                      
+                    </ul>
+                  </li>
+                  <li><a><i class="fa fa-briefcase"></i> CLINICAL SERVICES <span class="fa fa-chevron-down"></span></a>
+                    <ul class="nav child_menu">
+                      <li><a href="medical_service">Service Category</a></li>
+                      <li><a href="medical_service_list">Service List</a></li>
+                      <li><a href="medical_service_price">Service Price</a></li>
+                    </ul>
+                  </li>
+                  <li><a href="patient_info"><i class="fa fa-group"></i>PATIENT INFO<span class="fa fa-chevron-down"></span></a>
+                  </li>
+                  <li><a href="all_patient"><i class="fa fa-h-square"></i>PATIENT PROGRESS<span class="fa fa-chevron-down"></span></a>
+                  </li>
+                  <li><a href="all_transactions"><i class="fa fa-money"></i>TRANSACTIONS <span class="fa fa-chevron-down"></span></a>
                   </li>
                  
                 </ul>

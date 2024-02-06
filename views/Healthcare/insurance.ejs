@@ -1,0 +1,135 @@
+<%- include('../includes/header.ejs') %>
+<%- include('../includes/menu.ejs') %>
+  <!-- =============================================== -->
+
+
+      <!-- =============================================== -->
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="right_col" role="main">
+    <div class="">
+      <div class="page-title">
+        <div class="title_left">
+          <h3>PACE </h3>
+        </div>
+      </div>
+      <% if(errorMessage){ %>
+        <div class="alert alert-success"> <%= errorMessage %> </div>
+        <% } %>
+      <div class="clearfix"></div>
+      
+      <!-- ================== Category =========================== -->
+      <div class="row" >
+        <div class="col-md-12 col-sm-12 col-lg-12 ">
+          <div class="x_panel">
+            <div class="x_title">
+              <h2>LIST OF <%= institute_session.Institute_name %> INSURANCE</h2>
+              <div class="pull-right">
+                  <button type="button" id="butts" class="btn btn-secondary btn-sm" data-toggle="modal" data-target=".bs-example_role">
+                      <i class="fa fa-user"></i> New insurance
+                  </button>
+              </div>
+              <div class="clearfix"></div>
+            </div>
+            <div class="x_content">
+
+              <table class="table table-striped">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>INSURANCE NAME</th>
+                    <th>PARCENTAGE</th>
+                    <th>ACTION</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% 
+                    if(income_data.length > 0){ 
+                      let nn = 1;
+                      for(let row of income_data) {
+                      if(row.status == '0') { 
+                          status = "OFF"; 
+                          user_status_view = "fa-toggle-off "; 
+                          st = "color: red;";
+                          user_ = 1; 
+                      }else { 
+                          status = "ON"; 
+                          user_status_view = "fa-toggle-on";
+                          st = "color: green;";
+                          user_ = 0; 
+                      }
+                  %>
+                  <tr>
+                      <td><%= nn %></td>
+                      <td><%= row.income_date %></td>
+                      <td><%= row.Amount %></td>
+                      <td>
+                          <a href="../router/action_page.php?user_status&status=<%= user_ %>&&user_ID=<%= row.id %>" class="btn-sm btn btn-info">
+                              <i class="fa fa-edit"> </i> Edit 
+                          </a>
+                          
+                          <a href="user_access?id=<%= row.id %>" class="btn-sm btn btn-danger">
+                              <i class="fa fa-trash"></i> Delete
+                          </a>
+                      </td>
+                  </tr>
+                  <% nn++ }  
+                } else{
+                  %>
+                  <tr>
+                   <td colspan="5"> No data</td>
+                  </tr>
+                   <% } %>
+                </tbody>
+              </table>
+
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- =================== Role ============================ -->
+        <!--  -->
+      
+      <!-- =============================================== -->
+
+      <!-- =============================================== -->
+      
+    </div>
+  </div>
+  <!-- Small modal -->
+  
+  <!-- =================== Role ============================ -->
+  <div class="modal fade bs-example_role" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog modal-md">
+          <div class="modal-content">
+              <div class="modal-header" id="butts">
+                  <h4 class="modal-title " id="myModalLabel2">New System Insurance</h4>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span>
+                  </button>
+              </div>
+              <div class="modal-body">
+                  <form action="/PharmaPOST" method="post" id="form">
+                  
+                      <div class="mb-3">
+                        <label for="systemRole" class="form-label">Insurance Name</label>
+                        <input type="text" id="insurance_name" name="insurance_name" class="form-control" placeholder="Insurance Name" required="required" autofocus="autofocus">
+                      </div>
+                      <div class="mb-3">
+                        <label for="systemRole" class="form-label">Percentage</label>
+                        <input type="text" id="percentage" name="percentage" class="form-control" placeholder="Insurance Percentage" required="required" autofocus="autofocus">
+                      </div>
+                      
+                      <div class="text-center">
+                        <input type="hidden" name="action" id="action" value="save_income_info">
+                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                        <input type="submit" class="btn btn-dark form-control"  value="save" >
+                      </div>
+                      <hr>
+                  </form>
+              </div>
+          </div>
+      </div>
+  </div>
+  <!-- /modals -->
+  
+    <%- include('../includes/footer.ejs') %>

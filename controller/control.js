@@ -17,6 +17,7 @@ const Expense = require('../model/expenses');
 const Purchase = require('../model/purchase');
 const B_Purchase = require('../model/purchaseb');
 const Backet = require('../model/medical_backet');
+const Insurance = require('../model/insurance');
 /*=======  Get page for login form ============*/
 exports.getUser = (req, res, next) =>{
     let message = req.flash('error');
@@ -82,7 +83,7 @@ exports.getUserData = (req, res, next)=>{
                                             }
                                             if(req.session.institute_category.Category_Name =='HEALTHCARE'){
                                                 console.log('You are logged In as Health');
-                                                return res.redirect('/HL011');
+                                                return res.redirect('/HLCA0011');
                                             }
                                             if(req.session.institute_category.Category_Name =='PHARMACIE'){
                                                 console.log('You are logged In as Pharmacie');
@@ -319,7 +320,7 @@ exports.postUserAdmin = async (req, res, next) =>{
                 return res.redirect('/ADM012');
             }
             if(req.session.institute_category.Category_Name =='HEALTHCARE'){
-                return res.redirect('/HL012');
+                return res.redirect('/PH0012');
             }
             if(req.session.institute_category.Category_Name =='PHARMACIE'){
                 return res.redirect('/PH0012');
@@ -368,12 +369,10 @@ exports.getAdminSetting = (req, res, next)=>{
                 }).catch(err =>{console.log(err);})
             }).catch(err =>{console.log(err);}) 
         }).catch(err =>{console.log(err);})
-    }).catch(err =>{console.log(err);})
-    
-    
-    
+    }).catch(err =>{console.log(err);})  
 }
-/*=======  post and save user for Administration ============*/
+/*=======  post, get and save user for pharmaceutical ============*/
+
 /*=======  pharmaceutical ============*/
 exports.getPharmaHome = (req, res, next) =>{
     let message = req.flash('error');
@@ -475,7 +474,7 @@ exports.getSystemIncome = (req, res, next) =>{
     let message = req.flash('error');
     if(message.length > 0) { message = message[0]; }
     else { message = null; }
-    Income.findAll()
+    Income.findAll({where:{_kf_institution:req.session.institutes.__kp_institution}})
     .then(income =>{
         res.render('Pharmacie/income',{
             pageTitle: 'PACE | DG-HEALTH',
@@ -497,7 +496,7 @@ exports.getSystemExpense = (req, res, next) =>{
     let message = req.flash('error');
     if(message.length > 0) { message = message[0]; }
     else { message = null; }
-    Expense.findAll()
+    Expense.findAll({where:{_kf_institution:req.session.institutes.__kp_institution}})
     .then(expense =>{
         res.render('Pharmacie/expense',{
             pageTitle: 'PACE | DG-HEALTH',
@@ -549,7 +548,13 @@ exports.postPharmaInfo = (req, res, next) =>{
     if(req.session.branch_type.type_Name == 'UNIQUE'){
         var kp_branch = req.session.branch_type.__kp_branch_type;
     }else{
-        var kp_branch = req.session.branch.__kp_branch;
+        //var kp_branch = req.session.branch.__kp_branch;
+        if(req.session.role.Role_Name == 'ADMIN'){
+            var kp_branch = req.session.user._kf_branch;
+        }else{
+            var kp_branch = req.session.branch.__kp_branch;
+        }
+        console.log(kp_branch);
     }
     // program to generate random strings
     const characters ='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -636,6 +641,31 @@ exports.postPharmaInfo = (req, res, next) =>{
                res.redirect('/PH0018');
            }).catch(err =>{console.log(err);})
     }
+    if(action == 'view_basket_data'){
+        let message = req.flash('error');
+    if(message.length > 0) { message = message[0]; }
+    else { message = null; }
+    const institute = req.session.institutes.__kp_institution;
+    var sql = `SELECT * FROM dg_medical_backet INNER JOIN dg_medical_product
+    ON dg_medical_backet._kf_product = dg_medical_product.__kp_product
+    WHERE dg_medical_backet._kf_institution ='${institute}'`;
+    sequelize.query(sql,{ type: Sequelize.QueryTypes.SELECT })
+    .then(backet_prod =>{
+        res.render('Pharmacie/basket',{
+            pageTitle: 'PACE | DG-HEALTH',
+            path: '/PH0018',
+            isAuthenticated:req.session.isLoggedIn,
+            user_session: req.session.user,
+            institute_session: req.session.institutes,
+            institute_category_session: req.session.institute_category,
+            branch_type_session: req.session.branch_type,
+            role_session: req.session.role,
+            branch_session: req.session.branch,
+            errorMessage: message,
+            backet_data: backet_prod
+        })
+    }).catch(err =>{console.log(err);})
+    }
 
 }
 /*=======  get data serve medecine info from Pharmacie ============*/
@@ -671,31 +701,46 @@ exports.getPharmaServe = (req, res, next) =>{
 }
 /*=======  get data basket info from Pharmacie ============*/
 exports.getPharmaBasket = (req, res, next) =>{
+    
+}
+/*=======  post, get and save user for Healthcare ============*/
+/*======= get index for Health ============*/
+exports.getHealthHome = (req, res, next) =>{
     let message = req.flash('error');
     if(message.length > 0) { message = message[0]; }
     else { message = null; }
-    var sql = `SELECT * FROM dg_medical_purchase INNER JOIN dg_medical_product
-     ON dg_medical_purchase._kf_product = dg_medical_product.__kp_product`;
-    sequelize.query(sql,{ type: Sequelize.QueryTypes.SELECT })
-    .then(serve =>{
-        Backet.findAndCountAll({where:{_kf_institution:req.session.institutes.__kp_institution}})
-        .then(backet_prod =>{
-            const { count,rows } = backet_prod;
-            res.render('Pharmacie/basket',{
-                pageTitle: 'PACE | DG-HEALTH',
-                path: '/PH0018',
-                isAuthenticated:req.session.isLoggedIn,
-                user_session: req.session.user,
-                institute_session: req.session.institutes,
-                institute_category_session: req.session.institute_category,
-                branch_type_session: req.session.branch_type,
-                role_session: req.session.role,
-                branch_session: req.session.branch,
-                errorMessage: message,
-                count_data: count,
-                backet_data: rows,
-                serve_data: serve
-            })
-        }).catch(err =>{console.log(err);})
-    }).catch(err =>{console.log(err);})
-}
+    res.render('Healthcare/home',{
+        pageTitle: 'PACE | DG-HEALTH',
+        path: '/HLCA0011',
+        isAuthenticated:req.session.isLoggedIn,
+        user_session: req.session.user,
+        institute_session: req.session.institutes,
+        institute_category_session: req.session.institute_category,
+        branch_type_session: req.session.branch_type,
+        role_session: req.session.role,
+        branch_session: req.session.branch,
+        errorMessage: message
+    })
+};
+/*======= get insurance for Health ============*/
+exports.getInsuranceData = (req, res, next) =>{
+    let message = req.flash('error');
+    if(message.length > 0) { message = message[0]; }
+    else { message = null; }
+    Insurance.findAll({where:{_kf_institution:req.session.institutes.__kp_institution}})
+    .then(income =>{
+        res.render('Healthcare/insurance',{
+            pageTitle: 'PACE | DG-HEALTH',
+            path: '/HLCA0012',
+            isAuthenticated:req.session.isLoggedIn,
+            user_session: req.session.user,
+            institute_session: req.session.institutes,
+            institute_category_session: req.session.institute_category,
+            branch_type_session: req.session.branch_type,
+            role_session: req.session.role,
+            branch_session: req.session.branch,
+            errorMessage: message,
+            income_data: income
+        })
+    })
+};

@@ -13,6 +13,8 @@ router.get('/ADM013', isOn, contr.getAdminSetting);
 router.get('/ADuserGET', isOn, contr.getUserAdmin);
 router.post('/ADuserPOST', isOn, contr.postUserAdmin);
 //============= HEALTHCARE ==============
+router.get('/HLCA0011',isOn, contr.getHealthHome);
+router.get('/HLCA0012',isOn, contr.getInsuranceData);
 //============= PHARMACIE  ==============
 router.get('/PH0011', isOn, contr.getPharmaHome);
 router.get('/PH0012', isOn, contr.getPharmaSetting);
